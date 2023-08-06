@@ -21,12 +21,24 @@ import { ListDataTypes } from "../types/list";
 
 const conversations: ListDataTypes = [];
 
-const LeftBar: FC = () => {
+interface LeftBarTypes {
+  deleteConversationCallback: () => void
+}
+
+const LeftBar: FC<LeftBarTypes> = ({ deleteConversationCallback }) => {
+  function deleteConversation() {
+    localStorage.removeItem("conversation");
+    deleteConversationCallback()
+  }
+
   return (
     <BarContainer>
       <BarHeader text="Conversations" />
       {/* New conversation action */}
-      <div className="w-full h-fit p-[.625rem] flex justify-center items-center gap-[.625rem] border border-lightBorder cursor-pointer hover:bg-gray-100 transition-colors text-lightText text-12">
+      <button
+        onClick={deleteConversation}
+        className="w-full h-fit p-[.625rem] flex justify-center items-center gap-[.625rem] border border-lightBorder cursor-pointer hover:bg-gray-100 transition-colors text-lightText text-12"
+      >
         <svg
           width="11"
           height="12"
@@ -52,7 +64,7 @@ const LeftBar: FC = () => {
           </defs>
         </svg>
         <span>New Conversation</span>
-      </div>
+      </button>
       <List data={conversations} emptyMessage="Let's get talking!" />
     </BarContainer>
   );

@@ -1,16 +1,16 @@
-import { FC } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { FC, useEffect, useState, useRef } from "react";
 import ChatHeader from "./ChatHeader";
 import TextArea from "./TextArea";
 import Illustration from "./Illustration";
+import { useLocalStorage } from "usehooks-ts";
 
-type ConversationTypes = {
+export type ConversationTypes = {
   message: string;
-  type: string;
+  type: "question" | "answer";
   timestamp: number;
   sources: string[];
 };
-
-const conversationData: ConversationTypes[] = [];
 
 // const conversationData: ConversationTypes[] = [
 //   {
@@ -207,21 +207,56 @@ const copyIcon = (
   </svg>
 );
 
-function newQuestionCallback(data: ConversationTypes): void {
-  console.log(data);
+interface ChatTypes {
+  deleteConversation: boolean;
+  newConversationCallback: () => void;
 }
 
-function newAnswerCallback(data: ConversationTypes): void {
-  console.log(data);
-}
+const Chat: FC<ChatTypes> = ({
+  deleteConversation,
+  newConversationCallback,
+}) => {
+  const [conversationData, setConversationData] = useLocalStorage<
+    ConversationTypes[]
+  >("conversation", []);
 
-const Chat: FC = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const bottomDivRef = useRef<HTMLDivElement>(null);
+
+  function scrollToBottom() {
+    setTimeout(() => {
+      if (bottomDivRef.current) {
+        bottomDivRef.current.scrollTop = bottomDivRef.current.scrollHeight;
+      }
+    }, 10);
+  }
+
+  function newQuestionCallback(data: ConversationTypes): void {
+    setConversationData((state) => [...state, data]);
+    setLoading(true);
+    scrollToBottom();
+  }
+
+  function newAnswerCallback(data: ConversationTypes): void {
+    setConversationData((state) => [...state, data]);
+    setLoading(false);
+    scrollToBottom();
+  }
+
+  useEffect(() => {
+    if (deleteConversation) {
+      setConversationData([]);
+      newConversationCallback();
+    }
+  }, [deleteConversation]);
+
   return (
     <div className="relative h-screen bg-lightGrayBackground text-lightText">
       <ChatHeader />
       {/* Conversation */}
       <div
-        className="relative p-5 flex flex-col gap-2.5 overflow-y-auto overflow-x-hidden pb-36"
+        ref={bottomDivRef}
+        className="relative p-5 flex flex-col gap-2.5 overflow-y-auto overflow-x-hidden"
         style={{ height: "calc(100% - 4.25rem)" }}
       >
         {conversationData.length === 0 && (
@@ -248,30 +283,49 @@ const Chat: FC = () => {
                   </div>
                 )}
                 <div className="text-sm">{row.message}</div>
-                <div>
-                  <div className="w-full h-fit p-2.5 bg-indigo-50 rounded-sm border border-blue-200 justify-start items-start gap-2.5 inline-flex">
-                    <div className="text-blue-500 text-[12px] font-normal capitalize leading-[19px]">
-                      Sources:
-                      <br />
-                      {row.sources.map((source, i) => (
-                        <a
-                          target="blank"
-                          key={i}
-                          href={
-                            source.includes("https")
-                              ? source
-                              : `https://${source}`
-                          }
-                        >
-                          {source}
-                        </a>
-                      ))}
+                {row.type === "answer" && (
+                  <div>
+                    <div className="w-full h-fit p-2.5 bg-indigo-50 rounded-sm border border-blue-200 justify-start items-start gap-2.5 inline-flex">
+                      <div className="text-blue-500 text-[12px] font-normal capitalize leading-[19px]">
+                        Sources:
+                        <br />
+                        {row.sources.map((source, i) => (
+                          <a
+                            target="blank"
+                            key={i}
+                            href={
+                              source.includes("https")
+                                ? source
+                                : `https://${source}`
+                            }
+                          >
+                            {source}
+                          </a>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           ))}
+        {loading && (
+          <div className="flex gap-2.5 animate-pulse">
+            <div
+              className={`rounded flex-shrink-0 flex items-center justify-center bg-emerald-500`}
+              style={{ height: "1.875rem", width: "1.875rem" }}
+            >
+              {logoIcon}
+            </div>
+            <div className="bg-white p-2.5 gap-2.5 flex flex-col rounded w-full">
+              <div className="flex justify-between items-center h-4">
+                <div>{dotsIcon}</div>
+              </div>
+              <div className="text-sm w-full h-6 bg-lightGrayBackground rounded"></div>
+            </div>
+          </div>
+        )}
+        {conversationData.length > 0 && <div className="h-20 shrink-0"></div>}
       </div>
       <TextArea
         newQuestionCallback={newQuestionCallback}

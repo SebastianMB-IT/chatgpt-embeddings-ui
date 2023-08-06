@@ -1,19 +1,67 @@
 import { FC, KeyboardEvent, useRef } from "react";
+import { ConversationTypes } from "./Chat";
 
 interface TextAreaTypes {
-  newAnswerCallback: () => void;
-  newQuestionCallback: () => void;
+  newAnswerCallback: (data: ConversationTypes) => void;
+  newQuestionCallback: (data: ConversationTypes) => void;
 }
 
-const TextArea: FC<TextAreaTypes> = () => {
+interface AskResponse {
+  answer: string,
+  history: string,
+  sources: string[]
+}
+
+const TextArea: FC<TextAreaTypes> = ({
+  newQuestionCallback,
+  newAnswerCallback,
+}) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  function sendQuestionRequest() {
+  async function sendQuestionRequest() {
     if (textAreaRef.current?.value) {
-      console.warn("send:", textAreaRef.current?.value);
+      newQuestionCallback({
+        message: textAreaRef.current?.value,
+        type: "question",
+        timestamp: Date.now(),
+        sources: [],
+      });
 
-      
+      const question = textAreaRef.current?.value.slice()
+      textAreaRef.current.value = ''
 
+      try {
+        const request: Response = await fetch(
+          `http://${import.meta.env.VITE_BASE_API_HOST}/ask`,
+          {
+            method: "POST",
+            mode: "cors",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              question: question,
+              history: "",
+            }),
+          }
+        );
+
+        const data: AskResponse = await request.json();
+
+        if (data) {
+          newAnswerCallback({
+            message: data.answer,
+            type: "answer",
+            timestamp: Date.now(),
+            sources: data.sources,
+          });
+        }
+
+        console.log("data");
+        console.log(data);
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 
@@ -99,7 +147,7 @@ const TextArea: FC<TextAreaTypes> = () => {
           </div>
         </div>
       </div>
-      <div className="absolute bottom-0 h-36 w-full bg-gradient-to-b from-transparent to-lightGrayBackground z-10" />
+      <div className="absolute bottom-0 h-36 w-full bg-gradient-to-b from-transparent to-lightGrayBackground z-10 pointer-events-none" />
     </>
   );
 };
