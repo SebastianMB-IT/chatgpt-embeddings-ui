@@ -250,6 +250,10 @@ const Chat: FC<ChatTypes> = ({
     }
   }, [deleteConversation]);
 
+  useEffect(() => {
+    scrollToBottom()
+  }, [])
+
   return (
     <div className="relative h-screen bg-lightGrayBackground text-lightText">
       <ChatHeader />
