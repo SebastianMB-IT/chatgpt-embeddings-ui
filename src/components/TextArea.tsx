@@ -7,9 +7,9 @@ interface TextAreaTypes {
 }
 
 interface AskResponse {
-  answer: string,
-  history: string,
-  sources: string[]
+  answer: string;
+  history: string;
+  sources: string[];
 }
 
 const TextArea: FC<TextAreaTypes> = ({
@@ -27,24 +27,24 @@ const TextArea: FC<TextAreaTypes> = ({
         sources: [],
       });
 
-      const question = textAreaRef.current?.value.slice()
-      textAreaRef.current.value = ''
+      const question = textAreaRef.current?.value.slice();
+      textAreaRef.current.value = "";
 
       try {
-        const request: Response = await fetch(
-          `http://${import.meta.env.VITE_BASE_API_HOST}/ask`,
-          {
-            method: "POST",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              question: question,
-              history: "",
-            }),
-          }
-        );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const fullHost = window.location.hostname;
+        const host = fullHost.split(":")[0];
+        const request: Response = await fetch(`http://${host}:5000/ask`, {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            question: question,
+            history: "",
+          }),
+        });
 
         const data: AskResponse = await request.json();
 

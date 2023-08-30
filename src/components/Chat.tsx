@@ -314,7 +314,7 @@ const Chat: FC<ChatTypes> = ({
             </div>
           ))}
         {loading && (
-          <div className="flex gap-2.5 animate-pulse">
+          <div className="flex gap-2.5">
             <div
               className={`rounded flex-shrink-0 flex items-center justify-center bg-emerald-500`}
               style={{ height: "1.875rem", width: "1.875rem" }}
@@ -325,7 +325,7 @@ const Chat: FC<ChatTypes> = ({
               <div className="flex justify-between items-center h-4">
                 <div>{dotsIcon}</div>
               </div>
-              <div className="text-sm w-full h-6 bg-lightGrayBackground rounded"></div>
+              <div className="text-sm w-full h-6 bg-lightGrayBackground rounded  animate-pulse"></div>
             </div>
           </div>
         )}
