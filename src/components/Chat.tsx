@@ -251,8 +251,8 @@ const Chat: FC<ChatTypes> = ({
   }, [deleteConversation]);
 
   useEffect(() => {
-    scrollToBottom()
-  }, [])
+    scrollToBottom();
+  }, []);
 
   return (
     <div className="relative h-screen bg-lightGrayBackground text-lightText">
@@ -290,21 +290,16 @@ const Chat: FC<ChatTypes> = ({
                 {row.type === "answer" && (
                   <div>
                     <div className="w-full h-fit p-2.5 bg-indigo-50 rounded-sm border border-blue-200 justify-start items-start gap-2.5 inline-flex">
-                      <div className="text-blue-500 text-[12px] font-normal capitalize leading-[19px]">
+                      <div className="text-blue-500 text-[12px] font-normal leading-[19px]">
                         Sources:
                         <br />
                         {row.sources.map((source, i) => (
-                          <a
-                            target="blank"
-                            key={i}
-                            href={
-                              source.includes("https")
-                                ? source
-                                : `https://${source}`
-                            }
-                          >
-                            {source}
-                          </a>
+                          <p>
+                            {" "}
+                            <a target="_blank" key={i} href={source}>
+                              {source}
+                            </a>
+                          </p>
                         ))}
                       </div>
                     </div>
