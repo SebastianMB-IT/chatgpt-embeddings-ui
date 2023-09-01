@@ -147,7 +147,7 @@ const TextArea: FC<TextAreaTypes> = ({
           </div>
         </div>
       </div>
-      <div className="absolute bottom-0 h-36 w-full bg-gradient-to-b from-transparent to-lightGrayBackground z-10" />
+      <div className="absolute bottom-0 h-36 w-full bg-gradient-to-b from-transparent to-lightGrayBackground z-10 pointer-events-none" />
     </>
   );
 };
